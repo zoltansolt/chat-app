@@ -11,7 +11,7 @@ export class ChatAppComponent implements OnInit {
 
   constructor(private socket: Socket, private cdr: ChangeDetectorRef) { }
   inputForm: FormGroup;
-  messages: any[];
+  messages: any[] = [];
   userList: any[] = [];
   currentUser: any;
 

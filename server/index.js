@@ -1,11 +1,13 @@
 const express = require('express');
 const cors = require('cors');
 const app = express();
+const mongoose = require('mongoose');
 
 const http = require('http');
 const server = http.Server(app);
 
 const socketIO = require('socket.io');
+const Users = require('./schemas/UserModel')
 const io = socketIO(server, {     
     cors: {
         origin: "http://localhost:4200",
@@ -15,10 +17,21 @@ const io = socketIO(server, {
 
 const port = process.env.PORT || 3000;
 
+mongoose.connect("mongodb://localhost:27017/test", { useNewUrlParser: true }, function (err) {
+   
+  if(err){
+    throw err
+  }
+  console.log('Database connected');
+                
+});
+
 app.use(cors());
 
-// Will be in db in real world
-const users = [];
+const usersDB = mongoose.model('Users');
+let users;
+usersDB.find({}, function(err, data) { users = data; });
+console.log(users)
 const messages = [];
 let currentId = 0;
 
