@@ -5,7 +5,6 @@ import { SocketIoModule, SocketIoConfig } from 'ngx-socket-io';
 
 import { AppRoutingModule } from './app-routing.module';
 import { AppComponent } from './app.component';
-import { ChatService } from './chat.service';
 import { ChatAppComponent } from './modules/chat-app/chat-app.component';
 import { LoginComponent } from './modules/login/login.component';
 

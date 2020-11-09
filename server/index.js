@@ -1,13 +1,15 @@
 const express = require('express');
 const cors = require('cors');
 const app = express();
-const mongoose = require('mongoose');
-
+const connect = require("./dbconnect");
+const bodyParser = require("body-parser");
+const chatRouter = require("./routes");
 const http = require('http');
 const server = http.Server(app);
-
+const Chats = require("./schemas/ChatModel");
 const socketIO = require('socket.io');
-const Users = require('./schemas/UserModel')
+const Users = require('./schemas/UserModel');
+const Chat = require('./schemas/ChatModel');
 const io = socketIO(server, {     
     cors: {
         origin: "http://localhost:4200",
@@ -17,43 +19,48 @@ const io = socketIO(server, {
 
 const port = process.env.PORT || 3000;
 
-mongoose.connect("mongodb://localhost:27017/test", { useNewUrlParser: true }, function (err) {
-   
-  if(err){
-    throw err
-  }
-  console.log('Database connected');
-                
-});
-
 app.use(cors());
+//bodyparser middleware
+app.use(bodyParser.json());
 
-const usersDB = mongoose.model('Users');
-let users;
-usersDB.find({}, function(err, data) { users = data; });
-console.log(users)
-const messages = [];
+//routes
+app.use("/chats", chatRouter);
+
+const users = [];
+
 let currentId = 0;
 
 io.on('connection', (socket) => {
     console.log('user connected');
-    socket.emit("get users list", JSON.stringify(users));
-    socket.emit("get messages history", JSON.stringify(messages));
 
     socket.on("message", function(msg) {
         console.log(
           "LOG:: message from UserId: " + msg.userId + " --> " + msg.text
         );
-        const message = {
+        /*const message = {
           ...msg,
           timestamp: new Date()
         };
-        messages.push(message);
-        io.emit("message", JSON.stringify(message));
+        messages.push(message);*/
+        connect.then(db => {
+          console.log("connected to the server");
+
+          let chatMessage = new Chat({ message: msg.text, sender: "Anonymous"});
+          chatMessage.save();
+        })
+        io.emit("message", JSON.stringify(msg));
       });
     
       socket.on("user name added", function(name) {
         console.log("LOG:: user '" + name + "' entered the room");
+        
+        connect.then(db  =>  {
+          Chats.find({}).sort({_id:-1}).limit(1024).then(chat  =>  {
+              const messages = chat;      
+              socket.emit("get messages history", JSON.stringify(messages));
+              console.log(messages)
+        });})
+        socket.emit("get users list", JSON.stringify(users));
         const newUser = {
           name,
           id: ++currentId,
@@ -65,8 +72,8 @@ io.on('connection', (socket) => {
         io.emit("user name added", JSON.stringify(newUser));
       });
     
-      socket.on("disconnect", function() {
-        console.log("LOG:: user disconnected");
+      socket.on("disconnect", function(data) {
+        console.log("LOG:: user disconnected", socket.username);
       });
 });
 
