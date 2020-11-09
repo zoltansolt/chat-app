@@ -1,0 +1,22 @@
+<form [formGroup]="loginForm" (ngSubmit)="onSubmit()" novalidate>
+    <div class="input-group">
+      <input
+        type="text"
+        class="form-control"
+        formControlName="name"
+        placeholder="What's your name?"
+        required
+        #text
+      />
+      <div class="input-group-append">
+        <button
+          type="submit"
+          [disabled]="loginForm.pristine || loginForm.invalid"
+          class="btn btn-outline-secondary"
+        >
+          Join
+        </button>
+      </div>
+    </div>
+  </form>
+  
