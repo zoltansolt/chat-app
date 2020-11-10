@@ -1,5 +1,5 @@
 <div class="wrapper">
-    <ul class="message-list">
+    <ul class="message-list" #scrollMe>
         <li *ngFor="let message of messages" class="box3 sb14" [ngStyle]="{'color': message.color}">
             <span class="user-name">{{ message.sender }}: </span>
             <span class="message">{{ message.message }}</span>

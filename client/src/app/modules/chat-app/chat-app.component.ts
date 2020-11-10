@@ -1,4 +1,4 @@
-import { Component, OnInit, ChangeDetectorRef } from '@angular/core';
+import { Component, OnInit, ChangeDetectorRef, ViewChild, ElementRef } from '@angular/core';
 import { FormGroup, FormControl } from '@angular/forms';
 import { Socket } from "ngx-socket-io";
 
@@ -10,6 +10,7 @@ import { Socket } from "ngx-socket-io";
 export class ChatAppComponent implements OnInit {
 
   constructor(private socket: Socket, private cdr: ChangeDetectorRef) { }
+  @ViewChild('scrollMe') private myScrollContainer: ElementRef;
   inputForm: FormGroup;
   messages: any[] = [];
   userList: any[] = [];
@@ -39,6 +40,16 @@ export class ChatAppComponent implements OnInit {
       this.cdr.markForCheck();
     });
   }
+
+  ngAfterViewChecked() {        
+    this.scrollToBottom();        
+  } 
+
+  scrollToBottom(): void {
+    try {
+        this.myScrollContainer.nativeElement.scrollTop = this.myScrollContainer.nativeElement.scrollHeight;
+    } catch(err) { }                 
+}
 
   onSubmit() {
     this.socket.emit("message", this.inputForm.value.message);
