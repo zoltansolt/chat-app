@@ -17,6 +17,7 @@
     "express": "^4.17.1",
     "mongodb": "^3.6.3",
     "mongoose": "^5.10.13",
+    "randomcolor": "^0.6.2",
     "socket.io": "^2.3.0"
   }
 }

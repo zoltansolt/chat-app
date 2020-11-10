@@ -1,15 +1,13 @@
 const express = require('express');
 const cors = require('cors');
 const app = express();
-const connect = require("./dbconnect");
-const bodyParser = require("body-parser");
-const chatRouter = require("./routes");
+const randomColor = require('randomcolor');
+const connect = require('./dbconnect');
+const bodyParser = require('body-parser');
 const http = require('http');
 const server = http.Server(app);
-const Chats = require("./schemas/ChatModel");
+const Chats = require('./schemas/ChatModel');
 const socketIO = require('socket.io');
-const Users = require('./schemas/UserModel');
-const Chat = require('./schemas/ChatModel');
 const io = socketIO(server, {     
     cors: {
         origin: "http://localhost:4200",
@@ -23,60 +21,48 @@ app.use(cors());
 //bodyparser middleware
 app.use(bodyParser.json());
 
-//routes
-app.use("/chats", chatRouter);
-
 const users = [];
-
 let currentId = 0;
 
 io.on('connection', (socket) => {
     console.log('user connected');
+    const color = randomColor();
+    socket.username = 'Anonymous';
+    socket.color = color;
 
-    socket.on("message", function(msg) {
-        console.log(
-          "LOG:: message from UserId: " + msg.userId + " --> " + msg.text
-        );
-        /*const message = {
-          ...msg,
-          timestamp: new Date()
-        };
-        messages.push(message);*/
-        connect.then(db => {
-          console.log("connected to the server");
+    socket.on('user added', (user) => {
+      console.log("user '" + user.name + "' entered the room");
+      socket.username = user.name + '@' + user.ip + ':' + user.os + '~' + user.browser;
+      socket.id = currentId++;
+      users.push({ id: socket.id, username: socket.username, color: socket.color });
+      connect.then(db  =>  {
+        Chats.find({}).sort({createdAt: 1}).limit(1024).then(chat  =>  {
+            const messages = chat;      
+            socket.emit('get history', JSON.stringify(messages));
+            console.log(messages)
+      });})
+      io.emit('get users', JSON.stringify(users));
+    });
 
-          let chatMessage = new Chat({ message: msg.text, sender: "Anonymous"});
-          chatMessage.save();
-        })
-        io.emit("message", JSON.stringify(msg));
+    socket.on('message', msg => {      
+      const chatMessage = new Chats({ message: msg.text, sender: socket.username });
+      connect.then(db => {
+        chatMessage.save();
       });
-    
-      socket.on("user name added", function(name) {
-        console.log("LOG:: user '" + name + "' entered the room");
-        
-        connect.then(db  =>  {
-          Chats.find({}).sort({_id:-1}).limit(1024).then(chat  =>  {
-              const messages = chat;      
-              socket.emit("get messages history", JSON.stringify(messages));
-              console.log(messages)
-        });})
-        socket.emit("get users list", JSON.stringify(users));
-        const newUser = {
-          name,
-          id: ++currentId,
-          isCurrent: false
-        };
-    
-        users.push(newUser);
-        socket.emit("my user added", JSON.stringify(newUser));
-        io.emit("user name added", JSON.stringify(newUser));
-      });
-    
-      socket.on("disconnect", function(data) {
-        console.log("LOG:: user disconnected", socket.username);
-      });
+      io.emit('message', JSON.stringify(chatMessage));
+    });
+
+    socket.on('typing', data => {
+      socket.broadcast.emit('typing', { username: socket.username })
+    });
+  
+    socket.on('disconnect', data => {
+      const index = users.map(user => { return user.id }).indexOf(socket.id);
+      users.splice(index, 1);
+      io.emit('get users', JSON.stringify(users));
+    });
 });
 
 server.listen(port, () => {
-    console.log(`started on port: ${port}`);
+    console.log(`server started on port: ${port}`);
 });

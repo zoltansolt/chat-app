@@ -23,19 +23,15 @@ export class ChatAppComponent implements OnInit {
   }
 
   private initSocketListener() {
-    this.socket.on("get users list", (users: string) => {
+    this.socket.on('get users', (users: string) => {
       this.userList = [...JSON.parse(users)];
+      console.log(this.userList)
       this.cdr.markForCheck();
     });
 
-    this.socket.on("get messages history", (messages: string) => {
+    this.socket.on('get history', (messages: string) => {
       const historyMessages = [...JSON.parse(messages)];
-      this.messages = historyMessages.map(message => {
-        return {
-          ...message,
-          userName: message.user
-        };
-      });
+      this.messages = historyMessages;
       this.cdr.markForCheck();
     });
 

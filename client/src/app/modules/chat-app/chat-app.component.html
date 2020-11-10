@@ -1,8 +1,7 @@
 <ul class="message-list">
     <li *ngFor="let message of messages" class="message-list-item">
-        <span class="time">{{ message.timestamp | date: "hh:mm:ss" }}</span>
-        <span class="user-name">{{ message.userName }}</span>
-        <span class="message">{{ message.text }}</span>
+        <span class="user-name">{{ message.sender }}</span>
+        <span class="message">{{ message.message }}</span>
     </li>
 </ul>
 <form [formGroup]="inputForm" (ngSubmit)="onSubmit()" novalidate>
@@ -32,9 +31,8 @@
           *ngFor="let user of userList"
           class="list-group-item"
           [class.active]="user.isCurrent"
-          title="Click twice to select"
         >
-          {{ user.name }}
+          {{ user.username }}
         </li>
     </ul>
 </aside>

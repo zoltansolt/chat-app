@@ -7,6 +7,8 @@ import { AppRoutingModule } from './app-routing.module';
 import { AppComponent } from './app.component';
 import { ChatAppComponent } from './modules/chat-app/chat-app.component';
 import { LoginComponent } from './modules/login/login.component';
+import { IpaddressService } from './modules/login/ipaddress.service';
+import { HttpClient, HttpClientModule } from '@angular/common/http';
 
 const config: SocketIoConfig = { url: 'http://localhost:3000', options: {} };
 
@@ -18,12 +20,13 @@ const config: SocketIoConfig = { url: 'http://localhost:3000', options: {} };
   ],
   imports: [
     BrowserModule,
+    HttpClientModule,
     AppRoutingModule,
     SocketIoModule.forRoot(config),
     FormsModule,
     ReactiveFormsModule
   ],
-  providers: [],
+  providers: [IpaddressService],
   bootstrap: [AppComponent]
 })
 export class AppModule { }
