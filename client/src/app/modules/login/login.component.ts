@@ -1,6 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { FormControl, FormGroup } from '@angular/forms';
 import { Router } from '@angular/router';
+import { CookieService } from 'ngx-cookie-service';
 import { Socket } from 'ngx-socket-io';
 import { IpaddressService } from './ipaddress.service';
 
@@ -13,17 +14,23 @@ declare const InstallTrigger: any;
 })
 export class LoginComponent implements OnInit {
 
-  constructor(private router: Router, private socket: Socket, private ipService: IpaddressService) { }
+  constructor(private router: Router, private socket: Socket, private ipService: IpaddressService, private cookieService: CookieService) { }
   loginForm: FormGroup;
   os: string;
   browser: string;
+  cookieValue: string;
 
   ngOnInit(): void {
     this.loginForm = new FormGroup({
       name: new FormControl()
-   });
-   this.os = this.detectOS();
-   this.browser = this.detectBrowser();
+    });
+    this.os = this.detectOS();
+    this.browser = this.detectBrowser();
+    this.cookieValue = this.cookieService.get('username');
+    if (this.cookieValue) {
+      this.loginForm.controls['name'].disable();
+      this.onSubmit();
+    }
   }
 
   detectOS() {
@@ -82,8 +89,10 @@ export class LoginComponent implements OnInit {
   }
 
   onSubmit() {
+    const name = this.cookieValue ? this.cookieValue : this.loginForm.value.name;
+    this.cookieService.set('username', name);
     const userInfo = {
-      name: this.loginForm.value.name,
+      name: name,
       os: this.os,
       browser: this.browser,
       ip: ''

@@ -1,0 +1,25 @@
+.wrapper {
+    max-height: 100%;
+}
+ul.message-list {
+    max-height: 60%;
+    overflow: auto;
+    list-style: none;
+    padding: 10px;
+    background-color: #565656;
+    li.message-list-item {
+      padding: 10px 0;
+      &:nth-child(odd) {
+        background: #efefef;
+      }
+      span {
+        margin-left: 5px;
+        &.user-name {
+          font-weight: bold;
+          &::after {
+            content: ":";
+          }
+        }
+      }
+    }
+  }

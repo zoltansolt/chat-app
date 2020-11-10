@@ -9,6 +9,7 @@ import { ChatAppComponent } from './modules/chat-app/chat-app.component';
 import { LoginComponent } from './modules/login/login.component';
 import { IpaddressService } from './modules/login/ipaddress.service';
 import { HttpClient, HttpClientModule } from '@angular/common/http';
+import { CookieService } from 'ngx-cookie-service';
 
 const config: SocketIoConfig = { url: 'http://localhost:3000', options: {} };
 
@@ -26,7 +27,7 @@ const config: SocketIoConfig = { url: 'http://localhost:3000', options: {} };
     FormsModule,
     ReactiveFormsModule
   ],
-  providers: [IpaddressService],
+  providers: [IpaddressService, CookieService],
   bootstrap: [AppComponent]
 })
 export class AppModule { }

@@ -31,7 +31,7 @@ io.on('connection', (socket) => {
     socket.color = color;
 
     socket.on('user added', (user) => {
-      console.log("user '" + user.name + "' entered the room");
+      console.log(user.name + ' entered the room');
       socket.username = user.name + '@' + user.ip + ':' + user.os + '~' + user.browser;
       socket.id = currentId++;
       users.push({ id: socket.id, username: socket.username, color: socket.color });
@@ -39,21 +39,16 @@ io.on('connection', (socket) => {
         Chats.find({}).sort({createdAt: 1}).limit(1024).then(chat  =>  {
             const messages = chat;      
             socket.emit('get history', JSON.stringify(messages));
-            console.log(messages)
       });})
       io.emit('get users', JSON.stringify(users));
     });
 
     socket.on('message', msg => {      
-      const chatMessage = new Chats({ message: msg.text, sender: socket.username });
+      const chatMessage = new Chats({ message: msg, sender: socket.username, color: socket.color });
       connect.then(db => {
         chatMessage.save();
       });
       io.emit('message', JSON.stringify(chatMessage));
-    });
-
-    socket.on('typing', data => {
-      socket.broadcast.emit('typing', { username: socket.username })
     });
   
     socket.on('disconnect', data => {

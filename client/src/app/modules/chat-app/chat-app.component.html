@@ -1,38 +1,39 @@
-<ul class="message-list">
-    <li *ngFor="let message of messages" class="message-list-item">
-        <span class="user-name">{{ message.sender }}</span>
-        <span class="message">{{ message.message }}</span>
-    </li>
-</ul>
-<form [formGroup]="inputForm" (ngSubmit)="onSubmit()" novalidate>
-    <div class="input-group">
-        <input
-        type="text"
-        class="form-control"
-        formControlName="message"
-        placeholder="message"
-        required
-        #text
-        />
-        <div class="input-group-append">
-        <button
-            type="submit"
-            [disabled]="inputForm.pristine || inputForm.invalid"
-            class="btn btn-outline-secondary"
-        >
-            Send
-        </button>
-        </div>
-    </div>
-</form>
-<aside>
-    <ul class="list-group" *ngIf="userList.length">
-        <li
-          *ngFor="let user of userList"
-          class="list-group-item"
-          [class.active]="user.isCurrent"
-        >
-          {{ user.username }}
+<div class="wrapper">
+    <ul class="message-list">
+        <li *ngFor="let message of messages" class="box3 sb14" [ngStyle]="{'color': message.color}">
+            <span class="user-name">{{ message.sender }}: </span>
+            <span class="message">{{ message.message }}</span>
         </li>
     </ul>
-</aside>
+    <form [formGroup]="inputForm" (ngSubmit)="onSubmit()" novalidate>
+        <div class="input-group">
+            <input
+            type="text"
+            class="custom-input"
+            formControlName="message"
+            placeholder="message"
+            required
+            />
+            <div class="input-group-append">
+            <button
+                type="submit"
+                [disabled]="inputForm.pristine || inputForm.invalid"
+                class="btn btn-outline-secondary"
+            >
+                Send
+            </button>
+            </div>
+        </div>
+    </form>
+    <aside>
+        <ul class="list-group" *ngIf="userList.length">
+            <li
+            *ngFor="let user of userList"
+            class="list-group-item"
+            [ngStyle]="{'color': user.color}"
+            >
+            {{ user.username }}
+            </li>
+        </ul>
+    </aside>
+</div>
